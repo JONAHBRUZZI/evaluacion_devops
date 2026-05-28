@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY Springboot-API-REST-DESPACHO/pom.xml .
 COPY Springboot-API-REST-DESPACHO/mvnw .
-COPY Springboot-API-REST-DESPACHO/.mvn ./mvn
+COPY Springboot-API-REST-DESPACHO/.mvn ./.mvn
 
 RUN chmod +x mvnw
 
