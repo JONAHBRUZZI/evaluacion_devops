@@ -192,7 +192,8 @@ jobs:
         working-directory: infra
 
       - name: Display EC2 IP
-        run: echo "EC2 Public IP: $EC2_PUBLIC_IP"
+        run: |
+          echo "EC2 Public IP: $EC2_PUBLIC_IP"
 
   deploy-to-ec2:
     name: Deploy to EC2
