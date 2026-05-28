@@ -20,8 +20,8 @@ RUN rm -f /etc/nginx/nginx.conf && \
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /var/cache/nginx && \
+RUN touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /usr/share/nginx/html /var/cache/nginx /var/run && \
     chmod -R 755 /usr/share/nginx/html
 
 EXPOSE 80
