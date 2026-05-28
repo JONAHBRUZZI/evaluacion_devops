@@ -374,6 +374,7 @@ jobs:
               mysql:
                 image: mysql:8.0
                 container_name: evaluation-devops-mysql
+                command: --default-authentication-plugin=mysql_native_password
                 environment:
                   MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
                   MYSQL_DATABASE: evaluation_devops
