@@ -2,7 +2,7 @@
 # SECURITY MODULE
 # ============================================
 resource "aws_security_group" "main" {
-  name        = "${var.project_name}-sg"
+  name_prefix = "${var.project_name}-sg-"
   description = "Security group for evaluation-devops stack"
 
   ingress {
