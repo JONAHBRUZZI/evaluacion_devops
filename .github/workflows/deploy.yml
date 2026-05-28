@@ -30,6 +30,14 @@ on:
         options:
           - 'false'
           - 'true'
+      clean_orphans:
+        description: 'Clean orphaned EC2 and SG resources'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 env:
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -67,6 +75,54 @@ jobs:
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+  cleanup-orphans:
+    name: Clean Orphaned Resources
+    runs-on: ubuntu-latest
+    if: github.event.inputs.clean_orphans == 'true'
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Terminate orphan EC2 instances
+        run: |
+          echo "=== Finding orphan EC2 instances ==="
+          INSTANCES=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=evaluation-devops-ec2" "Name=instance-state-name,Values=running,stopped" \
+            --query "Reservations[].Instances[].InstanceId" --output text)
+          if [ -n "$INSTANCES" ]; then
+            echo "Terminating: $INSTANCES"
+            aws ec2 terminate-instances --instance-ids $INSTANCES
+            echo "Waiting for termination..."
+            aws ec2 wait instance-terminated --instance-ids $INSTANCES
+          else
+            echo "No orphan EC2 instances found"
+          fi
+
+      - name: Delete orphan security groups
+        run: |
+          echo "=== Finding orphan security groups ==="
+          SGS=$(aws ec2 describe-security-groups \
+            --filters "Name=group-name,Values=evaluation-devops-sg*" \
+            --query "SecurityGroups[].GroupId" --output text)
+          for sg in $SGS; do
+            echo "Deleting security group: $sg"
+            aws ec2 delete-security-group --group-id $sg || echo "  Could not delete (may be in use)"
+          done
+          if [ -z "$SGS" ]; then
+            echo "No orphan security groups found"
+          fi
+
+      - name: Summary
+        run: |
+          echo "============================================"
+          echo "  ORPHAN CLEANUP COMPLETED"
+          echo "============================================"
 
   validate:
     name: Validate Code
