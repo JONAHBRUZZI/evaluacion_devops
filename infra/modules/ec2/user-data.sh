@@ -29,6 +29,7 @@ docker-compose --version
 echo "9. Creating project directory..."
 mkdir -p /app
 mkdir -p /docker-data
+chown -R ec2-user:ec2-user /app
 
 echo "10. Creating Docker Compose file..."
 cat > /app/docker-compose.yml << 'EOF'

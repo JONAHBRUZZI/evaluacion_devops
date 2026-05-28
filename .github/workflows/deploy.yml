@@ -280,15 +280,15 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-backend-ventas:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-backend-despachos:latest
             cd /app
-            cat > .env << 'EOF'
+            sudo tee .env > /dev/null << 'EOF'
             DB_ENDPOINT=${{ secrets.DB_ENDPOINT }}
             DB_PORT=${{ secrets.DB_PORT }}
             DB_NAME=${{ secrets.DB_NAME }}
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             EOF
-            docker compose down
-            docker compose up -d
+            sudo docker-compose down
+            sudo docker-compose up -d
 
   health-check:
     name: Health Check
