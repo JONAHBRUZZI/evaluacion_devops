@@ -184,7 +184,7 @@ jobs:
         run: terraform apply -auto-approve tfplan
         working-directory: infra
         env:
-          TF_VAR_db_password: ${{ secrets.SECRET_DB_PASSWORD }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
 
       - name: Get EC2 Public IP
