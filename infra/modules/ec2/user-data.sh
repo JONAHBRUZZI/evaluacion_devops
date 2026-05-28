@@ -39,12 +39,7 @@ echo "9. Creating project directory..."
 mkdir -p /app
 mkdir -p /docker-data
 
-echo "10. Login to Docker Hub (if username provided)..."
-% if DOCKERHUB_USERNAME != "" {
-echo "${DOCKERHUB_TOKEN}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-% }
-
-echo "11. Creating Docker Compose file..."
+echo "10. Creating Docker Compose file..."
 cat > /app/docker-compose.yml << 'EOF'
 version: '3.8'
 
@@ -118,7 +113,7 @@ networks:
     driver: bridge
 EOF
 
-echo "12. Creating .env file..."
+echo "11. Creating .env file..."
 cat > /app/.env << 'EOF'
 SPRING_PROFILES_ACTIVE=prod
 DB_ENDPOINT=${DB_ENDPOINT}
@@ -128,7 +123,7 @@ DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 EOF
 
-echo "13. Creating startup script..."
+echo "12. Creating startup script..."
 cat > /app/start.sh << 'EOF'
 #!/bin/bash
 set -e
