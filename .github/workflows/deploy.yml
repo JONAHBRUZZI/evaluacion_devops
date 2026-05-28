@@ -99,6 +99,7 @@ jobs:
   build-backend-ventas:
     name: Build Backend Ventas
     runs-on: ubuntu-latest
+    if: github.event.inputs.destroy_only != 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -118,6 +119,7 @@ jobs:
   build-backend-despachos:
     name: Build Backend Despachos
     runs-on: ubuntu-latest
+    if: github.event.inputs.destroy_only != 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -278,6 +280,13 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-backend-ventas:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-backend-despachos:latest
             cd /app
+            cat > .env << 'EOF'
+            DB_ENDPOINT=${{ secrets.DB_ENDPOINT }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            EOF
             docker compose down
             docker compose up -d
 
@@ -291,13 +300,13 @@ jobs:
         run: sleep 30
 
       - name: Check frontend
-        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}/ || echo "000"
+        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}/
 
       - name: Check backend ventas
-        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8080/actuator/health || echo "000"
+        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8080/actuator/health
 
       - name: Check backend despachos
-        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8081/actuator/health || echo "000"
+        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8081/actuator/health
 
       - name: Final status
         run: |

@@ -58,7 +58,7 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-redirect", "-q", "http://localhost:80/"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -80,7 +80,7 @@ services:
       - evaluation-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-redirect", "-q", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -102,7 +102,7 @@ services:
       - evaluation-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-redirect", "-q", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -152,7 +152,7 @@ docker compose -f /app/docker-compose.yml ps
 
 echo ""
 echo "=== Stack started successfully ==="
-echo "Frontend: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo 'localhost'))"
+echo "Frontend: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo 'localhost')"
 echo "Backend Ventas: http://localhost:8080"
 echo "Backend Despachos: http://localhost:8081"
 EOF

@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   frontend:
-    image: evaluation-devops-frontend:latest
+    image: ${DOCKERHUB_USERNAME:-evaluation-devops}/evaluation-devops-frontend:latest
     container_name: evaluation-devops-frontend
     build:
       context: ./front_despacho
@@ -18,57 +16,57 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-redirect", "-q", "http://localhost:80/"]
+      test: ["CMD", "curl", "-f", "http://localhost:80/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 10s
 
   backend-ventas:
-    image: evaluation-devops-backend-ventas:latest
+    image: ${DOCKERHUB_USERNAME:-evaluation-devops}/evaluation-devops-backend-ventas:latest
     container_name: evaluation-devops-backend-ventas
     build:
       context: ./back-Ventas_SpringBoot
       dockerfile: Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - DB_ENDPOINT=${DB_ENDPOINT}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ENDPOINT=${DB_ENDPOINT:-localhost}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-evaluation_devops}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-changeme}
     ports:
       - "8080:8080"
     networks:
       - evaluation-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-redirect", "-q", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
 
   backend-despachos:
-    image: evaluation-devops-backend-despachos:latest
+    image: ${DOCKERHUB_USERNAME:-evaluation-devops}/evaluation-devops-backend-despachos:latest
     container_name: evaluation-devops-backend-despachos
     build:
       context: ./back-Despachos_SpringBoot
       dockerfile: Dockerfile
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - DB_ENDPOINT=${DB_ENDPOINT}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ENDPOINT=${DB_ENDPOINT:-localhost}
+      - DB_PORT=${DB_PORT:-3306}
+      - DB_NAME=${DB_NAME:-evaluation_devops}
+      - DB_USERNAME=${DB_USERNAME:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-changeme}
     ports:
       - "8081:8081"
     networks:
       - evaluation-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-redirect", "-q", "http://localhost:8081/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -77,6 +75,3 @@ services:
 networks:
   evaluation-network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16

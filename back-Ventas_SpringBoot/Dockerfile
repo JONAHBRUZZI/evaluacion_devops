@@ -9,13 +9,16 @@ COPY Springboot-API-REST/.mvn ./.mvn
 
 RUN chmod +x mvnw
 
+RUN ./mvnw dependency:resolve -DskipTests
+
 COPY Springboot-API-REST/src ./src
 
 RUN ./mvnw package -DskipTests
 
 FROM eclipse-temurin:17-jre-alpine
 
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN apk add --no-cache curl && \
+    addgroup -S appgroup && adduser -S appuser -G appgroup
 
 WORKDIR /app
 
@@ -28,6 +31,6 @@ USER appuser
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD wget --no-redirect --tries=1 -q http://localhost:8080/actuator/health || exit 1
+    CMD curl -f http://localhost:8080/actuator/health || exit 1
 
 ENTRYPOINT ["java", "-jar", "-Dserver.port=8080", "app.jar"]

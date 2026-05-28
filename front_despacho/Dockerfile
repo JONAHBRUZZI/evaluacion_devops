@@ -15,7 +15,8 @@ FROM nginx:alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-RUN rm -rf /etc/nginx/nginx.conf
+RUN rm -f /etc/nginx/nginx.conf && \
+    apk add --no-cache curl
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
@@ -27,6 +28,6 @@ EXPOSE 80
 USER nginx
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-redirect --tries=1 -q http://localhost:80/ || exit 1
+    CMD curl -f http://localhost:80/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
