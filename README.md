@@ -1,5 +1,7 @@
 # Evaluacion DevOps - Sistema Fullstack
 
+> **Pipeline CI/CD:** GitHub Actions ✓ | **Infraestructura:** Terraform ✓ | **Contenedores:** Docker ✓
+
 ## Descripción General
 
 Proyecto fullstack containerizado para evaluación académica de DevOps. Incluye frontend React y backends Spring Boot desplegados en AWS EC2 usando Terraform e infraestructura como código.
