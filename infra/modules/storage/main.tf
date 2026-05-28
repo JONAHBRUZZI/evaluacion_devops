@@ -1,4 +1,4 @@
-# Storage Module - EFS Configuration
+# Módulo de Almacenamiento - Configuración EFS
 resource "aws_efs_file_system" "main" {
   creation_token = var.project_name
   encrypted      = true

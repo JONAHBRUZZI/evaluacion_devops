@@ -1,7 +1,7 @@
 # ============================================
-# NETWORK MODULE
+# MÓDULO DE RED
 # ============================================
-# Creates VPC, Subnets, Internet Gateway, Route Tables
+# Crea VPC, Subnets, Internet Gateway, Tablas de Ruteo
 
 resource "aws_vpc" "main" {
   cidr_block           = var.vpc_cidr

@@ -6,32 +6,32 @@ echo "Proyecto: ${PROJECT_NAME}"
 
 export DEBIAN_FRONTEND=noninteractive
 
-echo "1. Installing Docker..."
+echo "1. Instalando Docker..."
 yum update -y
 yum install -y docker
 
-echo "2. Configuring Docker..."
+echo "2. Configurando Docker..."
 systemctl enable docker
 systemctl start docker
 
-echo "3. Installing Docker Compose..."
+echo "3. Instalando Docker Compose..."
 curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 chmod +x /usr/local/bin/docker-compose
 ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose
 
-echo "4. Adding ec2-user to docker group..."
+echo "4. Agregando ec2-user al grupo docker..."
 usermod -aG docker ec2-user
 
-echo "8. Docker version verification..."
+echo "5. Verificando versiones..."
 docker --version
 docker-compose --version
 
-echo "9. Creating project directory..."
+echo "6. Creando directorios del proyecto..."
 mkdir -p /app
 mkdir -p /docker-data
 chown -R ec2-user:ec2-user /app
 
-echo "10. Creating Docker Compose file..."
+echo "7. Creando archivo docker-compose.yml..."
 cat > /app/docker-compose.yml << 'EOF'
 version: '3.8'
 
@@ -105,7 +105,7 @@ networks:
     driver: bridge
 EOF
 
-echo "11. Creating .env file..."
+echo "8. Creando archivo .env..."
 cat > /app/.env << 'EOF'
 SPRING_PROFILES_ACTIVE=prod
 DB_ENDPOINT=$${DB_ENDPOINT}
@@ -115,35 +115,30 @@ DB_USERNAME=$${DB_USERNAME}
 DB_PASSWORD=$${DB_PASSWORD}
 EOF
 
-echo "12. Creating startup script..."
+echo "9. Creando script de inicio..."
 cat > /app/start.sh << 'EOF'
 #!/bin/bash
 set -e
 
-echo "=== Starting Evaluation DevOps Stack ==="
+echo "=== Iniciando Stack Evaluation DevOps ==="
 
-# Pull latest images
-echo "Pulling latest images..."
+echo "Descargando imágenes..."
 docker compose -f /app/docker-compose.yml pull
 
-# Stop existing containers
-echo "Stopping existing containers..."
+echo "Deteniendo contenedores existentes..."
 docker compose -f /app/docker-compose.yml down
 
-# Start services
-echo "Starting services..."
+echo "Iniciando servicios..."
 docker compose -f /app/docker-compose.yml up -d
 
-# Wait for health checks
-echo "Waiting for services to be healthy..."
+echo "Esperando health checks..."
 sleep 30
 
-# Verify services
-echo "Container status:"
+echo "Estado de contenedores:"
 docker compose -f /app/docker-compose.yml ps
 
 echo ""
-echo "=== Stack started successfully ==="
+echo "=== Stack iniciado exitosamente ==="
 echo "Frontend: http://$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo 'localhost')"
 echo "Backend Ventas: http://localhost:8080"
 echo "Backend Despachos: http://localhost:8081"
@@ -151,4 +146,4 @@ EOF
 
 chmod +x /app/start.sh
 
-echo "=== Docker installation completed ==="
+echo "=== Instalación Docker completada ==="

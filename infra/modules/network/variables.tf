@@ -1,14 +1,14 @@
 variable "vpc_cidr" {
-  description = "CIDR block for VPC"
+  description = "Bloque CIDR para la VPC"
   type        = string
 }
 
 variable "availability_zone" {
-  description = "Availability zone for subnets"
+  description = "Zona de disponibilidad para subnets"
   type        = string
 }
 
 variable "project_name" {
-  description = "Project name"
+  description = "Nombre del proyecto"
   type        = string
 }
