@@ -66,7 +66,7 @@ variable "dockerhub_username" {
 }
 
 variable "ami_id" {
-  description = "AMI ID for Ubuntu Server LTS (leave empty to use default)"
+  description = "AMI ID for Ubuntu Server LTS (us-east-1 default)"
   type        = string
-  default     = ""
+  default     = "ami-04b4f1a9cf54c11d0"
 }

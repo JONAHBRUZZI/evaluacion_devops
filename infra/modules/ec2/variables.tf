@@ -20,9 +20,9 @@ variable "instance_type" {
 }
 
 variable "ami_id" {
-  description = "AMI ID"
+  description = "AMI ID (Ubuntu 24.04 LTS in us-east-1)"
   type        = string
-  default     = ""
+  default     = "ami-04b4f1a9cf54c11d0"
 }
 
 variable "dockerhub_username" {
