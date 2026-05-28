@@ -69,11 +69,11 @@ services:
     container_name: evaluation-devops-backend-ventas
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - DB_ENDPOINT=${DB_ENDPOINT}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ENDPOINT=$${DB_ENDPOINT}
+      - DB_PORT=$${DB_PORT}
+      - DB_NAME=$${DB_NAME}
+      - DB_USERNAME=$${DB_USERNAME}
+      - DB_PASSWORD=$${DB_PASSWORD}
     ports:
       - "8080:8080"
     networks:
@@ -91,11 +91,11 @@ services:
     container_name: evaluation-devops-backend-despachos
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - DB_ENDPOINT=${DB_ENDPOINT}
-      - DB_PORT=${DB_PORT}
-      - DB_NAME=${DB_NAME}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_ENDPOINT=$${DB_ENDPOINT}
+      - DB_PORT=$${DB_PORT}
+      - DB_NAME=$${DB_NAME}
+      - DB_USERNAME=$${DB_USERNAME}
+      - DB_PASSWORD=$${DB_PASSWORD}
     ports:
       - "8081:8081"
     networks:
@@ -116,11 +116,11 @@ EOF
 echo "11. Creating .env file..."
 cat > /app/.env << 'EOF'
 SPRING_PROFILES_ACTIVE=prod
-DB_ENDPOINT=${DB_ENDPOINT}
-DB_PORT=${DB_PORT}
-DB_NAME=${DB_NAME}
-DB_USERNAME=${DB_USERNAME}
-DB_PASSWORD=${DB_PASSWORD}
+DB_ENDPOINT=$${DB_ENDPOINT}
+DB_PORT=$${DB_PORT}
+DB_NAME=$${DB_NAME}
+DB_USERNAME=$${DB_USERNAME}
+DB_PASSWORD=$${DB_PASSWORD}
 EOF
 
 echo "12. Creating startup script..."
