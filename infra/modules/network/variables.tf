@@ -1,24 +1,14 @@
-variable "vpc_id" {
-  description = "VPC ID"
+variable "vpc_cidr" {
+  description = "CIDR block for VPC"
+  type        = string
+}
+
+variable "availability_zone" {
+  description = "Availability zone for subnets"
   type        = string
 }
 
 variable "project_name" {
   description = "Project name"
   type        = string
-}
-
-variable "frontend_port" {
-  description = "Frontend port"
-  type        = number
-}
-
-variable "backend_ventas_port" {
-  description = "Backend ventas port"
-  type        = number
-}
-
-variable "backend_despachos_port" {
-  description = "Backend despachos port"
-  type        = number
 }
