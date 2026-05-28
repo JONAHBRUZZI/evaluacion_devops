@@ -276,8 +276,8 @@ volumes:
 
 ### Datos que Persisten
 
-| Volumen | Datos | Survive a |
-|---------|-------|------------|
+| Volumen | Datos | Sobrevive a |
+|---------|-------|-------------|
 | frontend-data | Archivos estáticos | Reinicio de contenedor |
 | db-data (opcional) | Datos MySQL | Reinicio de contenedor |
 
@@ -312,7 +312,7 @@ Para persistencia robusta:
 | Backend Ventas | 8080 | No (solo red interna) |
 | Backend Despachos | 8081 | No (solo red interna) |
 
-## Troubleshooting
+## Solución de problemas
 
 ### Frontend no carga
 
@@ -342,7 +342,7 @@ curl http://localhost:8081/actuator/health
 docker exec evaluation-devops-backend-ventas env | grep DB_
 ```
 
-### Terraform issues
+### Problemas con Terraform
 
 ```bash
 # Ver estado
@@ -373,14 +373,14 @@ cd infra && ./update.sh      # Actualizar frontend
 
 # GitHub Actions
 git checkout -b deploy       # Crear rama deploy
-git push origin deploy       # Trigger pipeline
+git push origin deploy       # Disparar pipeline
 ```
 
 ## Documentación Adicional
 
 - [Arquitectura](docs/architecture.md) - Diagrama detallado de arquitectura
-- [DevOps Explained](docs/devops-explanation.md) - Justificación técnica de decisiones
-- [Evidence Guide](docs/evidence.md) - Guía para defensa académica
+- [DevOps Explicado](docs/devops-explanation.md) - Justificación técnica de decisiones
+- [Guía de Evidencias](docs/evidence.md) - Guía para defensa académica
 - [Lecciones Aprendidas](docs/lessons-learned.md) - Errores, tips, persistencia y backups
 
 ## Tips Rápidos

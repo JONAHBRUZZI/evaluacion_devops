@@ -1,251 +1,251 @@
 # ============================================
-# EVIDENCE GUIDE FOR ACADEMIC DEFENSE
+# GUÍA DE EVIDENCIAS PARA DEFENSA ACADÉMICA
 # ============================================
 
-# Evidence Checklist
+# Lista de Verificación de Evidencias
 
-## GitHub Actions Evidence
+## Evidencias de GitHub Actions
 
-### 1. Workflow Execution
-- [ ] GitHub Actions triggered on `deploy` branch push
-- [ ] All jobs completed successfully
-- [ ] Screenshots of each job status
+### 1. Ejecución del Workflow
+- [ ] GitHub Actions activado al hacer push en la rama `deploy`
+- [ ] Todos los jobs completados exitosamente
+- [ ] Capturas de pantalla del estado de cada job
 
-### 2. Validation Stage
-- [ ] ESLint passed
-- [ ] Frontend build successful
-- [ ] Backend Maven build successful
+### 2. Etapa de Validación
+- [ ] ESLint aprobado
+- [ ] Build del frontend exitoso
+- [ ] Build Maven del backend exitoso
 
-### 3. Docker Build & Push
-- [ ] Images built successfully
-- [ ] Images pushed to Docker Hub
-- [ ] Tags visible on Docker Hub
+### 3. Build y Push de Docker
+- [ ] Imágenes construidas exitosamente
+- [ ] Imágenes publicadas en Docker Hub
+- [ ] Tags visibles en Docker Hub
 
-### 4. Terraform Deploy
-- [ ] Terraform init successful
-- [ ] Terraform plan output
-- [ ] Terraform apply completed
-- [ ] EC2 instance created
+### 4. Despliegue con Terraform
+- [ ] Terraform init exitoso
+- [ ] Salida de terraform plan
+- [ ] Terraform apply completado
+- [ ] Instancia EC2 creada
 
-### 5. EC2 Deployment
-- [ ] SSH connection successful
-- [ ] Docker images pulled
-- [ ] Containers started
+### 5. Despliegue en EC2
+- [ ] Conexión SSH exitosa
+- [ ] Imágenes Docker descargadas
+- [ ] Contenedores iniciados
 
-### 6. Health Check
-- [ ] Frontend returning 200
-- [ ] Backends returning 200
+### 6. Verificación de Salud
+- [ ] Frontend retornando 200
+- [ ] Backends retornando 200
 
-## Terraform Evidence
+## Evidencias de Terraform
 
-### 1. State Files
-- [ ] terraform.tfstate exists
-- [ ] State contains all resources
-- [ ] State locked (if using remote backend)
+### 1. Archivos de Estado
+- [ ] terraform.tfstate existe
+- [ ] El estado contiene todos los recursos
+- [ ] Estado bloqueado (si se usa backend remoto)
 
-### 2. Plan Output
-- [ ] Resources to create
-- [ ] Resources to modify
-- [ ] Resources to destroy
+### 2. Salida del Plan
+- [ ] Recursos a crear
+- [ ] Recursos a modificar
+- [ ] Recursos a destruir
 
-### 3. Apply Output
-- [ ] Public IP displayed
-- [ ] All resources created
-- [ ] No errors
+### 3. Salida del Apply
+- [ ] IP pública mostrada
+- [ ] Todos los recursos creados
+- [ ] Sin errores
 
-## Docker Evidence
+## Evidencias de Docker
 
-### 1. Local Testing
+### 1. Pruebas Locales
 ```bash
-# Build images
+# Construir imágenes
 docker build -f front_despacho/Dockerfile -t test-frontend ./front_despacho
 docker build -f back-Ventas_SpringBoot/Dockerfile -t test-backend-ventas ./back-Ventas_SpringBoot
 docker build -f back-Despachos_SpringBoot/Dockerfile -t test-backend-despachos ./back-Despachos_SpringBoot
 
-# Run compose
+# Ejecutar compose
 docker-compose up -d
 
-# Verify containers
+# Verificar contenedores
 docker ps
 
-# View logs
+# Ver logs
 docker-compose logs -f
 ```
 
-### 2. Container Status
-- [ ] All containers running
-- [ ] No restarts (healthcheck passing)
-- [ ] Proper ports exposed
+### 2. Estado de los Contenedores
+- [ ] Todos los contenedores en ejecución
+- [ ] Sin reinicios (healthcheck aprobado)
+- [ ] Puertos correctos expuestos
 
-### 3. Network Verification
+### 3. Verificación de Red
 ```bash
-# View networks
+# Ver redes
 docker network ls
 docker network inspect evaluation_devops_evaluation-network
 ```
 
-### 4. Volume Verification
+### 4. Verificación de Volúmenes
 ```bash
-# List volumes
+# Listar volúmenes
 docker volume ls
 
-# Inspect volume
+# Inspeccionar volumen
 docker volume inspect evaluation_devops_frontend-data
 ```
 
-## AWS EC2 Evidence
+## Evidencias de AWS EC2
 
-### 1. Instance Created
-- [ ] EC2 instance running
-- [ ] Public IP assigned
-- [ ] Security groups configured
+### 1. Instancia Creada
+- [ ] Instancia EC2 en ejecución
+- [ ] IP pública asignada
+- [ ] Security groups configurados
 
-### 2. SSH Access
+### 2. Acceso SSH
 ```bash
 ssh -i ~/.ssh/evaluation-devops-key.pem ubuntu@<public-ip>
 ```
 
-### 3. Docker Installation
+### 3. Instalación de Docker
 ```bash
 docker --version
 docker compose version
 ```
 
-### 4. Containers Running
+### 4. Contenedores en Ejecución
 ```bash
 docker ps
 docker compose -f /app/docker-compose.yml ps
 ```
 
-### 5. Services Accessible
+### 5. Servicios Accesibles
 ```bash
 curl http://localhost
 curl http://localhost:8080/actuator/health
 curl http://localhost:8081/actuator/health
 ```
 
-## Network Evidence
+## Evidencias de Red
 
 ### Security Groups
-- Port 80 (HTTP) open to 0.0.0.0/0
-- Port 443 (HTTPS) open to 0.0.0.0/0
-- Port 22 (SSH) open to 0.0.0.0/0
-- Ports 8080, 8081 open to 10.0.0.0/16 only
+- Puerto 80 (HTTP) abierto a 0.0.0.0/0
+- Puerto 443 (HTTPS) abierto a 0.0.0.0/0
+- Puerto 22 (SSH) abierto a 0.0.0.0/0
+- Puertos 8080, 8081 abiertos solo a 10.0.0.0/16
 
-### VPC Configuration
-- VPC with CIDR 10.0.0.0/16
-- Public subnet (10.0.1.0/24)
-- Private subnet (10.0.2.0/24)
-- Internet Gateway attached
-- Route tables configured
+### Configuración de VPC
+- VPC con CIDR 10.0.0.0/16
+- Subred pública (10.0.1.0/24)
+- Subred privada (10.0.2.0/24)
+- Internet Gateway adjunto
+- Tablas de ruteo configuradas
 
-## Persistence Evidence
+## Evidencias de Persistencia
 
-### 1. Volume Creation
+### 1. Creación de Volumen
 ```bash
 docker volume create test-volume
 docker volume inspect test-volume
 ```
 
-### 2. Data Survival Test
+### 2. Prueba de Supervivencia de Datos
 ```bash
-# Create data
+# Crear datos
 docker exec container mkdir /data/test
 docker exec container touch /data/test/file.txt
 
-# Restart container
+# Reiniciar contenedor
 docker restart container
 
-# Verify data exists
+# Verificar que los datos existen
 docker exec container ls /data/test
 ```
 
-### 3. Production Data
-- [ ] Database data persists
-- [ ] Uploaded files persist
-- [ ] Configuration persists
+### 3. Datos en Producción
+- [ ] Datos de base de datos persisten
+- [ ] Archivos subidos persisten
+- [ ] Configuración persiste
 
-## Common Issues and Troubleshooting
+## Problemas Comunes y Solución de Problemas
 
-### Docker Build Fails
+### Fallo en Build de Docker
 ```
-Problem: Multi-stage build fails
-Solution: Check COPY paths, ensure files exist
-```
-
-### Container Won't Start
-```
-Problem: Port already in use
-Solution: Check for other containers using same port
+Problema: Build multi-etapa falla
+Solución: Verificar rutas COPY, asegurar que los archivos existen
 ```
 
-### Healthcheck Fails
+### El Contenedor No Inicia
 ```
-Problem: Service not responding
-Solution: Check logs, verify port mapping
-```
-
-### Terraform State Locked
-```
-Problem: State locked by another process
-Solution: terraform force-unlock <lock-id>
+Problema: Puerto ya en uso
+Solución: Verificar otros contenedores usando el mismo puerto
 ```
 
-### EC2 SSH Timeout
+### Fallo en Healthcheck
 ```
-Problem: Cannot connect to EC2
-Solution: Check security group, verify key permissions
+Problema: Servicio no responde
+Solución: Verificar logs, comprobar mapeo de puertos
 ```
 
-# Defense Answers
+### Estado de Terraform Bloqueado
+```
+Problema: Estado bloqueado por otro proceso
+Solución: terraform force-unlock <lock-id>
+```
 
-## Architecture Questions
+### Timeout de SSH a EC2
+```
+Problema: No se puede conectar a EC2
+Solución: Verificar security group, comprobar permisos de llave
+```
 
-Q: Why separate frontend and backend?
-A: Enables independent scaling, separate deployment cycles,
-   different resource requirements, better security isolation.
+# Respuestas para la Defensa
 
-Q: Why Docker Compose over Kubernetes?
-A: Simpler for single EC2 deployment, less operational overhead,
-   sufficient for academic project scale, easier to understand.
+## Preguntas de Arquitectura
 
-Q: Why Terraform over manual AWS console setup?
-A: Reproducible, version controlled, automated, documented,
-   enables rapid destruction and recreation.
+P: ¿Por qué separar frontend y backend?
+R: Permite escalado independiente, ciclos de despliegue separados,
+   diferentes requerimientos de recursos, mejor aislamiento de seguridad.
 
-## Security Questions
+P: ¿Por qué Docker Compose en lugar de Kubernetes?
+R: Más simple para despliegue en una sola EC2, menos carga operativa,
+   suficiente para la escala de un proyecto académico, más fácil de entender.
 
-Q: How are secrets protected?
-A: GitHub Secrets for CI/CD, environment variables for runtime,
-   no hardcoded credentials in code.
+P: ¿Por qué Terraform en lugar de configuración manual en consola AWS?
+R: Reproducible, control de versiones, automatizado, documentado,
+   permite destrucción y recreación rápidas.
 
-Q: Why non-root containers?
-A: Principle of least privilege, container escape prevention,
-   compliance with security best practices.
+## Preguntas de Seguridad
 
-Q: Why private subnets for databases?
-A: Defense in depth, databases should never be directly
-   accessible from internet.
+P: ¿Cómo se protegen los secrets?
+R: GitHub Secrets para CI/CD, variables de entorno para tiempo de ejecución,
+   sin credenciales hardcodeadas en el código.
 
-## DevOps Questions
+P: ¿Por qué contenedores no-root?
+R: Principio de privilegio mínimo, prevención de escape de contenedor,
+   cumplimiento de mejores prácticas de seguridad.
 
-Q: What happens when you push to deploy branch?
-A: GitHub Actions triggers → Validation → Build → Push images
-   → Terraform deploy → SSH deploy → Health check
+P: ¿Por qué subredes privadas para bases de datos?
+R: Defensa en profundidad, las bases de datos nunca deben ser directamente
+   accesibles desde internet.
 
-Q: How do you rollback?
-A: Push previous commit, or use `docker compose down` to stop,
-   then `docker compose up -d` to restart with current code.
+## Preguntas de DevOps
 
-Q: How long does deployment take?
-A: ~15-20 minutes (validation, build, push, deploy, health check)
+P: ¿Qué sucede cuando haces push a la rama deploy?
+R: GitHub Actions se activa → Validación → Build → Push de imágenes
+   → Despliegue con Terraform → Despliegue vía SSH → Verificación de salud
 
-Q: How do you destroy everything?
-A: `cd infra && ./destroy.sh` - terraform destroy removes all AWS resources
+P: ¿Cómo hacer rollback?
+R: Hacer push del commit anterior, o usar `docker compose down` para detener,
+   luego `docker compose up -d` para reiniciar con el código actual.
 
-# Commands Reference
+P: ¿Cuánto tarda el despliegue?
+R: ~15-20 minutos (validación, build, push, despliegue, verificación de salud)
 
-## Git Commands
+P: ¿Cómo destruir todo?
+R: `cd infra && ./destroy.sh` - terraform destroy elimina todos los recursos AWS
+
+# Referencia de Comandos
+
+## Comandos Git
 ```bash
 git init
 git add .
@@ -256,30 +256,30 @@ git push -u origin main
 git push origin deploy
 ```
 
-## Docker Commands
+## Comandos Docker
 ```bash
-# Build
+# Construir
 docker build -t evaluation-devops-frontend ./front_despacho
 
-# Run
+# Ejecutar
 docker-compose up -d
 
 # Logs
 docker-compose logs -f
 
-# Stop
+# Detener
 docker-compose down
 
-# Remove volumes
+# Eliminar volúmenes
 docker-compose down -v
 ```
 
-## Terraform Commands
+## Comandos Terraform
 ```bash
 cd infra
-./deploy.sh      # Deploy
-./destroy.sh     # Destroy
-./update.sh      # Update frontend
+./deploy.sh      # Desplegar
+./destroy.sh     # Destruir
+./update.sh      # Actualizar frontend
 
 # Manual
 terraform init
@@ -288,15 +288,15 @@ terraform apply
 terraform destroy
 ```
 
-## AWS Commands
+## Comandos AWS
 ```bash
-# Get EC2 IP
+# Obtener IP de EC2
 cd infra && terraform output ec2_public_ip
 
 # SSH
 ssh -i ~/.ssh/evaluation-devops-key.pem ubuntu@<ip>
 
-# On EC2
+# En EC2
 docker ps
 docker compose -f /app/docker-compose.yml logs -f
 ```

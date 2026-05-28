@@ -1,4 +1,4 @@
-name: Deploy to AWS EC2
+name: Desplegar a AWS EC2
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       skip_terraform:
-        description: 'Skip Terraform deployment'
+        description: 'Omitir despliegue de Terraform'
         required: false
         default: 'false'
         type: choice
@@ -15,7 +15,7 @@ on:
           - 'false'
           - 'true'
       skip_ec2_deploy:
-        description: 'Skip EC2 deployment'
+        description: 'Omitir despliegue en EC2'
         required: false
         default: 'false'
         type: choice
@@ -23,7 +23,7 @@ on:
           - 'false'
           - 'true'
       destroy_only:
-        description: 'Destroy all infrastructure (ignores other options)'
+        description: 'Destruir toda la infraestructura (ignora otras opciones)'
         required: false
         default: 'false'
         type: choice
@@ -31,7 +31,7 @@ on:
           - 'false'
           - 'true'
       clean_orphans:
-        description: 'Clean orphaned EC2 and SG resources'
+        description: 'Limpiar recursos huérfanos de EC2 y SG'
         required: false
         default: 'false'
         type: choice
@@ -45,19 +45,19 @@ env:
 
 jobs:
   terraform-destroy:
-    name: Destroy Infrastructure
+    name: Destruir Infraestructura
     runs-on: ubuntu-latest
     if: github.event.inputs.destroy_only == 'true'
     steps:
-      - name: Checkout code
+      - name: Obtener código
         uses: actions/checkout@v4
 
-      - name: Setup Terraform
+      - name: Configurar Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.10.0
 
-      - name: Configure AWS credentials
+      - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -77,11 +77,11 @@ jobs:
           TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   cleanup-orphans:
-    name: Clean Orphaned Resources
+    name: Limpiar Recursos Huérfanos
     runs-on: ubuntu-latest
     if: github.event.inputs.clean_orphans == 'true'
     steps:
-      - name: Configure AWS credentials
+      - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -89,7 +89,7 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Terminate orphan EC2 instances
+      - name: Terminar instancias EC2 huérfanas
         run: |
           echo "=== Finding orphan EC2 instances ==="
           INSTANCES=$(aws ec2 describe-instances \
@@ -104,7 +104,7 @@ jobs:
             echo "No orphan EC2 instances found"
           fi
 
-      - name: Delete orphan security groups
+      - name: Eliminar security groups huérfanos
         run: |
           echo "=== Finding orphan security groups ==="
           SGS=$(aws ec2 describe-security-groups \
@@ -118,98 +118,98 @@ jobs:
             echo "No orphan security groups found"
           fi
 
-      - name: Summary
+      - name: Resumen
         run: |
           echo "============================================"
           echo "  ORPHAN CLEANUP COMPLETED"
           echo "============================================"
 
   validate:
-    name: Validate Code
+    name: Validar Código
     runs-on: ubuntu-latest
     if: github.event.inputs.destroy_only != 'true'
     steps:
-      - name: Checkout code
+      - name: Obtener código
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
           cache-dependency-path: front_despacho/package-lock.json
 
-      - name: Install frontend dependencies
+      - name: Instalar dependencias del frontend
         run: npm ci
         working-directory: front_despacho
 
-      - name: Run ESLint
+      - name: Ejecutar ESLint
         continue-on-error: true
         run: npm run lint -- --max-warnings 10
         working-directory: front_despacho
 
-      - name: Build frontend
+      - name: Compilar frontend
         run: npm run build
         working-directory: front_despacho
 
   build-backend-ventas:
-    name: Build Backend Ventas
+    name: Compilar Backend Ventas
     runs-on: ubuntu-latest
     if: github.event.inputs.destroy_only != 'true'
     steps:
-      - name: Checkout code
+      - name: Obtener código
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Configurar Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build with Maven
+      - name: Compilar con Maven
         run: |
           chmod +x mvnw
           ./mvnw package -DskipTests
         working-directory: back-Ventas_SpringBoot/Springboot-API-REST
 
   build-backend-despachos:
-    name: Build Backend Despachos
+    name: Compilar Backend Despachos
     runs-on: ubuntu-latest
     if: github.event.inputs.destroy_only != 'true'
     steps:
-      - name: Checkout code
+      - name: Obtener código
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Configurar Java
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Build with Maven
+      - name: Compilar con Maven
         run: |
           chmod +x mvnw
           ./mvnw package -DskipTests
         working-directory: back-Despachos_SpringBoot/Springboot-API-REST-DESPACHO
 
   docker-build-and-push:
-    name: Build and Push Docker Images
+    name: Construir y Publicar Imágenes Docker
     runs-on: ubuntu-latest
     needs: [validate, build-backend-ventas, build-backend-despachos]
     steps:
-      - name: Checkout code
+      - name: Obtener código
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
+      - name: Configurar Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
+      - name: Iniciar sesión en Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push frontend
+      - name: Construir y publicar frontend
         uses: docker/build-push-action@v5
         with:
           context: ./front_despacho
@@ -220,7 +220,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push backend-ventas
+      - name: Construir y publicar backend-ventas
         uses: docker/build-push-action@v5
         with:
           context: ./back-Ventas_SpringBoot
@@ -231,7 +231,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Build and push backend-despachos
+      - name: Construir y publicar backend-despachos
         uses: docker/build-push-action@v5
         with:
           context: ./back-Despachos_SpringBoot
@@ -243,7 +243,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   terraform-deploy:
-    name: Deploy Infrastructure
+    name: Desplegar Infraestructura
     runs-on: ubuntu-latest
     needs: docker-build-and-push
     if: github.event.inputs.skip_terraform != 'true'
@@ -251,10 +251,10 @@ jobs:
       ec2_public_ip: ${{ steps.get-ip.outputs.ec2_public_ip }}
     environment: production
     steps:
-      - name: Checkout code
+      - name: Obtener código
         uses: actions/checkout@v4
 
-      - name: Download previous Terraform state
+      - name: Descargar estado anterior de Terraform
         uses: dawidd6/action-download-artifact@v7
         continue-on-error: true
         with:
@@ -262,12 +262,12 @@ jobs:
           name: terraform-state
           path: infra
 
-      - name: Setup Terraform
+      - name: Configurar Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.10.0
 
-      - name: Configure AWS credentials
+      - name: Configurar credenciales de AWS
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -301,23 +301,23 @@ jobs:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
 
-      - name: Upload Terraform state
+      - name: Subir estado de Terraform
         uses: actions/upload-artifact@v4
         with:
           name: terraform-state
           path: infra/terraform.tfstate
           retention-days: 7
 
-      - name: Get EC2 Public IP
+      - name: Obtener IP pública de EC2
         id: get-ip
         run: echo "ec2_public_ip=$(terraform output -raw ec2_public_ip)" >> $GITHUB_OUTPUT
         working-directory: infra
 
-      - name: Display EC2 IP
+      - name: Mostrar IP de EC2
         run: |
           echo "EC2 Public IP: ${{ steps.get-ip.outputs.ec2_public_ip }}"
 
-      - name: Cleanup on failure
+      - name: Limpiar en caso de fallo
         if: failure()
         run: |
           echo "=== DEPLOY FAILED - DESTROYING RESOURCES ==="
@@ -328,18 +328,18 @@ jobs:
           TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
 
   deploy-to-ec2:
-    name: Deploy to EC2
+    name: Desplegar en EC2
     runs-on: ubuntu-latest
     needs: terraform-deploy
     if: github.event.inputs.skip_ec2_deploy != 'true'
     steps:
-      - name: Checkout code
+      - name: Obtener código
         uses: actions/checkout@v4
 
-      - name: Wait for EC2 to be ready
+      - name: Esperar a que EC2 esté listo
         run: sleep 180
 
-      - name: Verify Docker is ready
+      - name: Verificar que Docker esté listo
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ needs.terraform-deploy.outputs.ec2_public_ip }}
@@ -349,7 +349,7 @@ jobs:
             sudo docker ps || true
             sudo docker-compose --version || true
 
-      - name: Deploy via SSH
+      - name: Desplegar vía SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ needs.terraform-deploy.outputs.ec2_public_ip }}
@@ -449,27 +449,27 @@ jobs:
             sudo docker ps
 
   health-check:
-    name: Health Check
+    name: Verificación de Salud
     runs-on: ubuntu-latest
     needs: [deploy-to-ec2, terraform-deploy]
     if: github.event.inputs.skip_ec2_deploy != 'true'
     steps:
-      - name: Wait for services
+      - name: Esperar a los servicios
         run: sleep 60
 
-      - name: Check frontend
+      - name: Verificar frontend
         continue-on-error: true
         run: curl -f -s -o /dev/null -w "Frontend:%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}/ || echo " FAIL"
 
-      - name: Check backend ventas
+      - name: Verificar backend ventas
         continue-on-error: true
         run: curl -f -s -o /dev/null -w "Ventas:%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8080/actuator/health || echo " FAIL"
 
-      - name: Check backend despachos
+      - name: Verificar backend despachos
         continue-on-error: true
         run: curl -f -s -o /dev/null -w "Despachos:%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8081/actuator/health || echo " FAIL"
 
-      - name: Final status
+      - name: Estado final
         run: |
           echo "========================================"
           echo "  DEPLOYMENT COMPLETED"

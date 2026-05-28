@@ -1,4 +1,4 @@
-# Multi-stage build for Spring Boot Despachos Backend
+# Build multi-etapa para backend Spring Boot Despachos
 FROM eclipse-temurin:17-jdk-alpine AS builder
 
 WORKDIR /app

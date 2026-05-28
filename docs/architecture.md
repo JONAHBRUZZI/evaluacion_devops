@@ -1,8 +1,8 @@
 # ============================================
-# ARCHITECTURE DOCUMENTATION
+# DOCUMENTACIÓN DE ARQUITECTURA
 # ============================================
 
-# Infrastructure Architecture
+# Arquitectura de Infraestructura
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -11,13 +11,13 @@
 │  │                      VPC (10.0.0.0/16)                     │ │
 │  │                                                         │ │
 │  │  ┌────────────────────────────────────────────────────┐  │ │
-│  │  │              Public Subnet (10.0.1.0/24)           │  │ │
+│  │  │              Subred Pública (10.0.1.0/24)          │  │ │
 │  │  │                                                    │  │ │
 │  │  │  ┌────────────────────────────────────────────────┐ │  │ │
 │  │  │  │           EC2 Instance (Ubuntu LTS)            │ │  │ │
 │  │  │  │                                                │ │  │ │
 │  │  │  │  ┌─────────────────────────────────────────┐   │ │  │ │
-│  │  │  │  │  Docker Containers                      │   │ │  │ │
+│  │  │  │  │  Contenedores Docker                    │   │ │  │ │
 │  │  │  │  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ │   │ │  │ │
 │  │  │  │  │  │ frontend │ │backend  │ │backend   │ │   │ │  │ │
 │  │  │  │  │  │ (nginx)  │ │ ventas  │ │despachos │ │   │ │  │ │
@@ -28,10 +28,10 @@
 │  │  └────────────────────────────────────────────────────┘  │ │
 │  │                                                        │ │
 │  │  ┌────────────────────────────────────────────────────┐  │ │
-│  │  │              Private Subnet (10.0.2.0/24)           │  │ │
+│  │  │              Subred Privada (10.0.2.0/24)          │  │ │
 │  │  │                                                    │  │ │
 │  │  │  ┌────────────────────────────────────────────────┐ │  │ │
-│  │  │  │           RDS MySQL (Future)                   │ │  │ │
+│  │  │  │           RDS MySQL (Futuro)                   │ │  │ │
 │  │  │  │                                                │ │  │ │
 │  │  │  └────────────────────────────────────────────────┘ │  │ │
 │  │  └────────────────────────────────────────────────────┘  │ │
@@ -40,33 +40,33 @@
 └─────────────────────────────────────────────────────────────────┘
 
 ┌──────────────────────────────────────────────────────────────────┐
-│                        GitHub Repository                         │
+│                        Repositorio GitHub                        │
 │  ┌────────────────────────────────────────────────────────────┐  │
-│  │                    branches: main, deploy                 │  │
+│  │                    ramas: main, deploy                    │  │
 │  │                                                            │  │
 │  │  ┌────────────────────────────────────────────────────┐  │  │
-│  │  │           GitHub Actions CI/CD Pipeline              │  │  │
+│  │  │        Pipeline CI/CD de GitHub Actions              │  │  │
 │  │  │                                                      │  │  │
-│  │  │  1. Validate (Lint, Tests, Build)                   │  │  │
-│  │  │  2. Build Docker Images                             │  │  │
-│  │  │  3. Push to Docker Hub                               │  │  │
+│  │  │  1. Validar (Lint, Tests, Build)                    │  │  │
+│  │  │  2. Construir Imágenes Docker                       │  │  │
+│  │  │  3. Publicar en Docker Hub                          │  │  │
 │  │  │  4. Terraform Apply                                 │  │  │
-│  │  │  5. Deploy to EC2                                    │  │  │
-│  │  │  6. Health Check                                    │  │  │
+│  │  │  5. Desplegar en EC2                                │  │  │
+│  │  │  6. Verificación de Salud                          │  │  │
 │  │  └────────────────────────────────────────────────────┘  │  │
 │  └────────────────────────────────────────────────────────────┘  │
 └──────────────────────────────────────────────────────────────────┘
 ```
 
-# Service Communication
+# Comunicación de Servicios
 
 ```
-User (Browser)
+Usuario (Navegador)
      │
      ▼
 ┌─────────────┐     :80      ┌─────────────┐
-│   Nginx     │─────────────│  Frontend    │
-│   Proxy     │             │  (React)     │
+│   Proxy     │─────────────│  Frontend    │
+│   Nginx     │             │  (React)     │
 └─────────────┘             └──────┬───────┘
                                    │
                     /api/*         │
@@ -87,7 +87,7 @@ User (Browser)
                     └─────────────┘
 ```
 
-# Docker Network Architecture
+# Arquitectura de Red Docker
 
 ```
 ┌────────────────────────────────────────────────────────┐
@@ -99,13 +99,13 @@ User (Browser)
 │   │   :80    │  │  :8080   │  │  :8081   │           │
 │   └──────────┘  └──────────┘  └──────────┘           │
 │                                                        │
-│   - Frontend: Public (port 80)                        │
-│   - Backends: Private (no external ports)            │
-│   - All services in same Docker network              │
+│   - Frontend: Público (puerto 80)                     │
+│   - Backends: Privado (sin puertos externos)           │
+│   - Todos los servicios en la misma red Docker         │
 └────────────────────────────────────────────────────────┘
 ```
 
-# Persistence Architecture
+# Arquitectura de Persistencia
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -113,34 +113,34 @@ User (Browser)
 │  ┌─────────────────────────────────────────────────┐ │
 │  │              Docker Host                        │ │
 │  │  ┌─────────────────────────────────────────┐    │ │
-│  │  │  Docker Volumes (Persistent)            │    │ │
+│  │  │  Volúmenes Docker (Persistente)        │    │ │
 │  │  │                                          │    │ │
 │  │  │  • evaluation-devops-frontend-data      │    │ │
-│  │  │  • evaluation-devops-db-data (optional) │    │ │
+│  │  │  • evaluation-devops-db-data (opcional) │    │ │
 │  │  │                                          │    │ │
-│  │  │  Survives: container restart, recreate  │    │ │
-│  │  │  Survives NOT: instance termination      │    │ │
+│  │  │  Sobrevive: reinicio, recreación        │    │ │
+│  │  │  NO sobrevive: terminación de instancia │    │ │
 │  │  └─────────────────────────────────────────┘    │ │
 │  └─────────────────────────────────────────────────┘ │
 │                                                      │
-│  /app directory: Application code + docker-compose   │
-│  /docker-data: Volume data                           │
+│  /app directorio: Código de aplicación + docker-compose     │
+│  /docker-data: Datos de volumen                            │
 └─────────────────────────────────────────────────────┘
 ```
 
-# Security Architecture
+# Arquitectura de Seguridad
 
 ```
 Internet
     │
-    ├── :80 (HTTP) ──► [Security Group] ──► Frontend (Public)
+    ├── :80 (HTTP) ──► [Security Group] ──► Frontend (Público)
     │
-    ├── :443 (HTTPS) ──► [Security Group] ──► Frontend (Public)
+    ├── :443 (HTTPS) ──► [Security Group] ──► Frontend (Público)
     │
-    └── :22 (SSH) ──► [Security Group] ──► EC2 (Limited)
+    └── :22 (SSH) ──► [Security Group] ──► EC2 (Limitado)
 
-Internal Communication (10.0.0.0/16):
-    ├── :8080 (Backend Ventas) ──► Backend containers only
-    ├── :8081 (Backend Despachos) ──► Backend containers only
-    └── :3306 (MySQL) ──► Private subnet (future RDS)
+Comunicación Interna (10.0.0.0/16):
+    ├── :8080 (Backend Ventas) ──► Solo contenedores backend
+    ├── :8081 (Backend Despachos) ──► Solo contenedores backend
+    └── :3306 (MySQL) ──► Subred privada (futuro RDS)
 ```

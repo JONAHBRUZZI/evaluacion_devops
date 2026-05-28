@@ -1,5 +1,5 @@
-# Multi-stage build for React frontend
-# Stage 1: Build
+# Build multi-etapa para frontend React
+# Etapa 1: Construcción
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -10,7 +10,7 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Stage 2: Production
+# Etapa 2: Producción
 FROM nginx:alpine
 
 COPY --from=builder /app/dist /usr/share/nginx/html

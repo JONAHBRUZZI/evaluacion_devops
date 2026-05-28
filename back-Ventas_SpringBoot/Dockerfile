@@ -1,4 +1,4 @@
-# Multi-stage build for Spring Boot Ventas Backend
+# Build multi-etapa para backend Spring Boot Ventas
 FROM eclipse-temurin:17-jdk-alpine AS builder
 
 WORKDIR /app

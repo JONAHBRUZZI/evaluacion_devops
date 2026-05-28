@@ -1,104 +1,104 @@
 # ============================================
-# DEVOPS EXPLANATION DOCUMENTATION
+# DOCUMENTACIÓN DE EXPLICACIÓN DEVOPS
 # ============================================
 
-# 1. Containerization Design
+# 1. Diseño de Contenedorización
 
 ## Frontend (React + Vite + Nginx)
 
-### Multi-stage Build Strategy
+### Estrategia de Build Multi-etapa
 ```
-Stage 1: Builder (node:20-alpine)
-├── Install dependencies (npm ci)
-├── Copy source code
-├── Build production bundle (npm run build)
-└── Output: /app/dist
+Etapa 1: Builder (node:20-alpine)
+├── Instalar dependencias (npm ci)
+├── Copiar código fuente
+├── Compilar bundle de producción (npm run build)
+└── Salida: /app/dist
 
-Stage 2: Production (nginx:alpine)
-├── Copy build artifacts from builder
-├── Custom nginx configuration
-├── Set proper file permissions
-└── Run as non-root user (nginx)
+Etapa 2: Producción (nginx:alpine)
+├── Copiar artefactos de build desde builder
+├── Configuración personalizada de nginx
+├── Establecer permisos de archivos adecuados
+└── Ejecutar como usuario no-root (nginx)
 ```
 
-### Security Implementation
-- **Non-root user**: nginx user (uid 101)
-- **Read-only filesystem**: Configured via nginx.conf
-- **Minimal image**: Alpine-based (~15MB base)
-- **Healthcheck**: HTTP check every 30s
+### Implementación de Seguridad
+- **Usuario no-root**: usuario nginx (uid 101)
+- **Sistema de archivos de solo lectura**: Configurado mediante nginx.conf
+- **Imagen mínima**: Basada en Alpine (~15MB base)
+- **Healthcheck**: Verificación HTTP cada 30s
 
-### Performance Optimization
-- **Layer caching**: Dependencies installed before code copy
-- **Nginx gzip**: Compression for text assets
-- **Static file serving**: Direct from nginx, no node overhead
-- **Asset caching**: Immutable URLs for hashed files
+### Optimización de Rendimiento
+- **Caché de capas**: Dependencias instaladas antes de copiar código
+- **Nginx gzip**: Compresión para archivos de texto
+- **Archivos estáticos**: Servidos directamente desde nginx, sin sobrecarga de node
+- **Caché de assets**: URLs inmutables para archivos con hash
 
-### AWS Compatibility
-- **Port 80 exposed**: Standard HTTP for EC2 security groups
-- **Healthcheck endpoint**: / returns 200 for ELB/ALB integration
-- **Minimal attack surface**: No shell, no package managers in final image
+### Compatibilidad con AWS
+- **Puerto 80 expuesto**: HTTP estándar para security groups de EC2
+- **Endpoint de healthcheck**: / retorna 200 para integración con ELB/ALB
+- **Superficie de ataque mínima**: Sin shell, sin gestores de paquetes en la imagen final
 
 ## Backend Ventas (Spring Boot)
 
-### Multi-stage Build Strategy
+### Estrategia de Build Multi-etapa
 ```
-Stage 1: Builder (eclipse-temurin:17-jdk-alpine)
-├── Copy pom.xml
-├── Download Maven dependencies
-├── Copy source code
-├── Build JAR (./mvnw package)
-└── Output: /app/target/*.jar
+Etapa 1: Builder (eclipse-temurin:17-jdk-alpine)
+├── Copiar pom.xml
+├── Descargar dependencias Maven
+├── Copiar código fuente
+├── Compilar JAR (./mvnw package)
+└── Salida: /app/target/*.jar
 
-Stage 2: Production (eclipse-temurin:17-jre-alpine)
-├── Create non-root user (appuser:appgroup)
-├── Copy JAR from builder
-├── Set proper permissions
-└── Run as non-root user
+Etapa 2: Producción (eclipse-temurin:17-jre-alpine)
+├── Crear usuario no-root (appuser:appgroup)
+├── Copiar JAR desde builder
+├── Establecer permisos adecuados
+└── Ejecutar como usuario no-root
 ```
 
-### Security Implementation
-- **Non-root execution**: appuser (uid 1001)
-- **No shell access**: Only Java process running
-- **Filesystem read-only**: /app only, logs to stdout
-- **Healthcheck**: Actuator endpoint every 30s
+### Implementación de Seguridad
+- **Ejecución no-root**: appuser (uid 1001)
+- **Sin acceso a shell**: Solo el proceso Java en ejecución
+- **Sistema de archivos de solo lectura**: solo /app, logs a stdout
+- **Healthcheck**: Endpoint de Actuator cada 30s
 
-### AWS Compatibility
-- **Java 17 LTS**: Compatible with Amazon Corretto
-- **Actuator health**: /actuator/health for monitoring
-- **Environment variables**: Native Spring support for AWS secrets
-- **Port 8080**: Internal only, not exposed to internet
+### Compatibilidad con AWS
+- **Java 17 LTS**: Compatible con Amazon Corretto
+- **Actuator health**: /actuator/health para monitoreo
+- **Variables de entorno**: Soporte nativo de Spring para secrets de AWS
+- **Puerto 8080**: Solo interno, no expuesto a internet
 
 ## Backend Despachos (Spring Boot)
 
-Same architecture as Ventas, with:
-- **Port 8081**: Different from Ventas to enable parallel deployment
-- **Separate container**: Independent scaling capability
-- **Shared network**: Communication via Docker DNS
+Misma arquitectura que Ventas, con:
+- **Puerto 8081**: Diferente de Ventas para permitir despliegue en paralelo
+- **Contenedor separado**: Capacidad de escalado independiente
+- **Red compartida**: Comunicación mediante DNS de Docker
 
-# 2. Docker Compose Architecture
+# 2. Arquitectura de Docker Compose
 
-## Service Definitions
+## Definiciones de Servicios
 
-### Frontend Service
+### Servicio Frontend
 ```yaml
 image: evaluation-devops-frontend:latest
 ports:
-  - "80:80"           # Public access
+  - "80:80"           # Acceso público
 networks:
   - evaluation-network
 depends_on:
-  - backend-ventas    # Healthcheck condition
-  - backend-despachos # Healthcheck condition
+  - backend-ventas    # Condición de healthcheck
+  - backend-despachos # Condición de healthcheck
 restart: unless-stopped
 healthcheck:
   test: ["CMD", "wget", "-q", "http://localhost:80/"]
 ```
 
-### Backend Ventas Service
+### Servicio Backend Ventas
 ```yaml
 image: evaluation-devops-backend-ventas:latest
 ports:
-  - "8080:8080"       # Internal only
+  - "8080:8080"       # Solo interno
 environment:
   - DB_ENDPOINT=${DB_ENDPOINT}
   - DB_PASSWORD=${DB_PASSWORD}
@@ -109,11 +109,11 @@ healthcheck:
   test: ["CMD", "wget", "-q", "http://localhost:8080/actuator/health"]
 ```
 
-### Backend Despachos Service
+### Servicio Backend Despachos
 ```yaml
 image: evaluation-devops-backend-despachos:latest
 ports:
-  - "8081:8081"       # Internal only
+  - "8081:8081"       # Solo interno
 environment:
   - DB_ENDPOINT=${DB_ENDPOINT}
   - DB_PASSWORD=${DB_PASSWORD}
@@ -124,7 +124,7 @@ healthcheck:
   test: ["CMD", "wget", "-q", "http://localhost:8081/actuator/health"]
 ```
 
-## Network Architecture
+## Arquitectura de Red
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -133,20 +133,20 @@ healthcheck:
 │   Driver: bridge                                │
 │   Subnet: 172.20.0.0/16                        │
 │                                                 │
-│   DNS Resolution:                               │
+│   Resolución DNS:                             │
 │   ├── frontend → 172.20.0.2                   │
 │   ├── backend-ventas → 172.20.0.3             │
 │   └── backend-despachos → 172.20.0.4           │
 │                                                 │
-│   Frontend can reach backends by name:          │
+│   Frontend puede alcanzar backends por nombre:         │
 │   • http://backend-ventas:8080                 │
 │   • http://backend-despachos:8081              │
 └─────────────────────────────────────────────────┘
 ```
 
-## Persistence Strategy
+## Estrategia de Persistencia
 
-### Volume Configuration
+### Configuración de Volúmenes
 ```yaml
 volumes:
   - frontend-data:/usr/share/nginx/html
@@ -159,26 +159,26 @@ volumes:
     driver: local
 ```
 
-### What Persists
-| Volume | Data | Survives |
+### Qué Persiste
+| Volumen | Datos | Sobrevive |
 |--------|------|----------|
-| frontend-data | Uploaded files, cache | Container restart |
-| db-data | Database files | Container restart |
+| frontend-data | Archivos subidos, caché | Reinicio de contenedor |
+| db-data | Archivos de base de datos | Reinicio de contenedor |
 
-### What Doesn't Persist
-- Container filesystem (code, configs)
-- tmp directories
+### Qué No Persiste
+- Sistema de archivos del contenedor (código, configs)
+- Directorios tmp
 - Logs (stdout)
 
-### Data Protection
-- Volumes survive `docker compose down`
-- Volumes survive `docker compose up -d`
-- Volumes DON'T survive `docker compose down -v`
-- EBS recommended for database in production
+### Protección de Datos
+- Los volúmenes sobreviven a `docker compose down`
+- Los volúmenes sobreviven a `docker compose up -d`
+- Los volúmenes NO sobreviven a `docker compose down -v`
+- Se recomienda EBS para base de datos en producción
 
-# 3. CI/CD Pipeline Explanation
+# 3. Explicación del Pipeline CI/CD
 
-## Pipeline Trigger
+## Activación del Pipeline
 
 ```yaml
 on:
@@ -187,46 +187,46 @@ on:
       - deploy
 ```
 
-When code is pushed to `deploy` branch:
-1. GitHub Actions automatically triggers
-2. Full pipeline executes
-3. No manual intervention required
+Cuando se hace push del código a la rama `deploy`:
+1. GitHub Actions se activa automáticamente
+2. Se ejecuta el pipeline completo
+3. No se requiere intervención manual
 
-## Pipeline Stages
+## Etapas del Pipeline
 
-### Stage 1: Validation
+### Etapa 1: Validación
 ```
-├── Checkout code
-├── Install dependencies (npm ci)
-├── ESLint (code quality)
-└── Build (compile check)
+├── Obtener código
+├── Instalar dependencias (npm ci)
+├── ESLint (calidad de código)
+└── Build (verificación de compilación)
 ```
 
-### Stage 2: Build Backends
+### Etapa 2: Compilar Backends
 ```
 ├── Backend Ventas
-│   ├── Setup Java 17
+│   ├── Configurar Java 17
 │   └── Maven package
 │
 └── Backend Despachos
-    ├── Setup Java 17
+    ├── Configurar Java 17
     └── Maven package
 ```
 
-### Stage 3: Docker Build & Push
+### Etapa 3: Build y Push de Docker
 ```
-├── Login to Docker Hub
-├── Build frontend image
-├── Push frontend image
-├── Build backend-ventas image
-├── Push backend-ventas image
-├── Build backend-despachos image
-└── Push backend-despachos image
+├── Iniciar sesión en Docker Hub
+├── Construir imagen frontend
+├── Publicar imagen frontend
+├── Construir imagen backend-ventas
+├── Publicar imagen backend-ventas
+├── Construir imagen backend-despachos
+└── Publicar imagen backend-despachos
 ```
 
-### Stage 4: Terraform Deploy
+### Etapa 4: Despliegue con Terraform
 ```
-├── Configure AWS credentials
+├── Configurar credenciales de AWS
 ├── Terraform init
 ├── Terraform fmt
 ├── Terraform validate
@@ -234,143 +234,143 @@ When code is pushed to `deploy` branch:
 └── Terraform apply
 ```
 
-### Stage 5: EC2 Deployment
+### Etapa 5: Despliegue en EC2
 ```
-├── Wait for EC2 initialization (2 min)
-├── SSH to EC2
-├── Login to Docker Hub
-├── Pull latest images
-├── Stop existing containers
-└── Start new containers
-```
-
-### Stage 6: Health Check
-```
-├── Check frontend (/ port 80)
-├── Check backend-ventas (/actuator/health)
-├── Check backend-despachos (/actuator/health)
-└── Report status
+├── Esperar inicialización de EC2 (2 min)
+├── Conectar vía SSH a EC2
+├── Iniciar sesión en Docker Hub
+├── Descargar últimas imágenes
+├── Detener contenedores existentes
+└── Iniciar nuevos contenedores
 ```
 
-## Secrets Configuration
+### Etapa 6: Verificación de Salud
+```
+├── Verificar frontend (/ puerto 80)
+├── Verificar backend-ventas (/actuator/health)
+├── Verificar backend-despachos (/actuator/health)
+└── Reportar estado
+```
 
-Required GitHub Secrets:
-| Secret | Purpose |
+## Configuración de Secrets
+
+GitHub Secrets requeridos:
+| Secret | Propósito |
 |--------|---------|
-| AWS_ACCESS_KEY_ID | AWS authentication |
-| AWS_SECRET_ACCESS_KEY | AWS authentication |
-| AWS_SESSION_TOKEN | Temporary AWS session |
-| AWS_REGION | Target region |
-| DOCKERHUB_USERNAME | Image push authentication |
-| DOCKERHUB_TOKEN | Image push authentication |
-| DB_PASSWORD | Backend database password |
-| EC2_SSH_KEY | SSH access to EC2 |
+| AWS_ACCESS_KEY_ID | Autenticación de AWS |
+| AWS_SECRET_ACCESS_KEY | Autenticación de AWS |
+| AWS_SESSION_TOKEN | Sesión temporal de AWS |
+| AWS_REGION | Región objetivo |
+| DOCKERHUB_USERNAME | Autenticación para publicar imágenes |
+| DOCKERHUB_TOKEN | Autenticación para publicar imágenes |
+| DB_PASSWORD | Contraseña de base de datos del backend |
+| EC2_SSH_KEY | Acceso SSH a EC2 |
 
-## Docker Hub Justification
+## Justificación de Docker Hub
 
-Why Docker Hub over ECR/other registries?
+¿Por qué Docker Hub y no ECR/otros registries?
 
-1. **Simplicity**: No registry configuration in pipeline
-2. **Free tier**: Unlimited public repos, 1 private
-3. **Maturity**: Industry standard, well-documented
-4. **Integration**: Native `docker/login-action` support
-5. **Speed**: Global CDN, fast pulls worldwide
-6. **Cost**: No egress fees for public images
+1. **Simplicidad**: Sin configuración de registry en el pipeline
+2. **Capa gratuita**: Repos públicos ilimitados, 1 privado
+3. **Madurez**: Estándar de la industria, bien documentado
+4. **Integración**: Soporte nativo de `docker/login-action`
+5. **Velocidad**: CDN global, descargas rápidas en todo el mundo
+6. **Costo**: Sin tarifas de salida para imágenes públicas
 
-For production with sensitive images:
-- AWS ECR with VPC endpoints
+Para producción con imágenes sensibles:
+- AWS ECR con VPC endpoints
 - Azure Container Registry
 - Google Artifact Registry
 
-# 4. DevOps Principles Applied
+# 4. Principios DevOps Aplicados
 
-## Infrastructure as Code (IaC)
+## Infraestructura como Código (IaC)
 
-**Terraform Benefits**:
-- Version controlled infrastructure
-- Reproducible deployments
-- Consistent environments
-- Rapid destruction and recreation
-- State tracking and versioning
+**Beneficios de Terraform**:
+- Infraestructura con control de versiones
+- Despliegues reproducibles
+- Entornos consistentes
+- Destrucción y recreación rápidas
+- Seguimiento de estado y versionado
 
-**Implementation**:
+**Implementación**:
 ```bash
-# Deploy
+# Desplegar
 ./deploy.sh
 
-# Destroy
+# Destruir
 ./destroy.sh
 ```
 
-## Containerization (Docker)
+## Contenedorización (Docker)
 
-**Benefits**:
-- Consistent environments (dev = prod)
-- Isolation between services
-- Resource limits and allocation
-- Rapid scaling
-- Rollback capability
+**Beneficios**:
+- Entornos consistentes (dev = prod)
+- Aislamiento entre servicios
+- Límites y asignación de recursos
+- Escalado rápido
+- Capacidad de rollback
 
-**Implementation**:
-- Multi-stage builds
-- Non-root users
+**Implementación**:
+- Builds multi-etapa
+- Usuarios no-root
 - Healthchecks
-- Resource constraints
+- Restricciones de recursos
 
-## Continuous Integration & Deployment (CI/CD)
+## Integración y Despliegue Continuo (CI/CD)
 
-**Benefits**:
-- Automated testing
-- Consistent deployments
-- Fast feedback loop
-- Reduced human error
-- Audit trail
+**Beneficios**:
+- Pruebas automatizadas
+- Despliegues consistentes
+- Ciclo de retroalimentación rápido
+- Reducción de errores humanos
+- Trazabilidad de auditoría
 
-**Implementation**:
+**Implementación**:
 - GitHub Actions
-- Automated triggers
-- Environment promotion
-- Health checks
+- Activadores automáticos
+- Promoción entre entornos
+- Verificaciones de salud
 
-## Immutable Infrastructure
+## Infraestructura Inmutable
 
-**Principle**: Never modify running instances, always replace
+**Principio**: Nunca modificar instancias en ejecución, siempre reemplazar
 
-**Implementation**:
-- New AMI/image for changes
-- Blue-green deployments
-- Infrastructure as code
-- Versioned containers
+**Implementación**:
+- Nueva AMI/imagen para cambios
+- Despliegues blue-green
+- Infraestructura como código
+- Contenedores versionados
 
-## Security by Design
+## Seguridad por Diseño
 
-**Implementation**:
-- Non-root containers
-- Least privilege security groups
-- No hardcoded secrets
-- Secrets via environment variables
-- Network segmentation (public/private subnets)
+**Implementación**:
+- Contenedores no-root
+- Security groups de privilegio mínimo
+- Sin secrets hardcodeados
+- Secrets mediante variables de entorno
+- Segmentación de red (subredes públicas/privadas)
 
-## Scalability Considerations
+## Consideraciones de Escalabilidad
 
-**Horizontal Scaling**:
-- Stateless services
-- External database
-- Load balancer ready
+**Escalado Horizontal**:
+- Servicios sin estado
+- Base de datos externa
+- Preparado para balanceador de carga
 
-**Vertical Scaling**:
-- t3.medium default (adjustable)
-- EBS volume expansion
-- Docker resource limits
+**Escalado Vertical**:
+- t3.medium por defecto (ajustable)
+- Expansión de volumen EBS
+- Límites de recursos Docker
 
-## Monitoring & Health Checks
+## Monitoreo y Health Checks
 
-**Health Endpoints**:
+**Endpoints de Salud**:
 - Frontend: `http://localhost:80/`
 - Backend Ventas: `http://localhost:8080/actuator/health`
 - Backend Despachos: `http://localhost:8081/actuator/health`
 
-**Automated Checks**:
+**Verificaciones Automatizadas**:
 - Docker healthcheck
-- GitHub Actions health step
-- ELB/ALB integration ready
+- Paso de health en GitHub Actions
+- Preparado para integración con ELB/ALB

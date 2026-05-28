@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-echo "=== Docker Installation Script ==="
-echo "Project: ${PROJECT_NAME}"
+echo "=== Script de instalación Docker ==="
+echo "Proyecto: ${PROJECT_NAME}"
 
 export DEBIAN_FRONTEND=noninteractive
 
