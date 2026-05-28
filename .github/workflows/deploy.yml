@@ -287,8 +287,50 @@ jobs:
             DB_USERNAME=${{ secrets.DB_USERNAME }}
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             EOF
-            sudo docker-compose down
-            sudo sed -i '/condition: service_healthy/d' /app/docker-compose.yml
+            sudo tee docker-compose.yml > /dev/null << 'COMPOSEEOF'
+            services:
+              frontend:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-frontend:latest
+                container_name: evaluation-devops-frontend
+                ports:
+                  - "80:80"
+                networks:
+                  - evaluation-network
+                restart: unless-stopped
+              backend-ventas:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-backend-ventas:latest
+                container_name: evaluation-devops-backend-ventas
+                environment:
+                  - SPRING_PROFILES_ACTIVE=prod
+                  - DB_ENDPOINT=${{ secrets.DB_ENDPOINT }}
+                  - DB_PORT=${{ secrets.DB_PORT }}
+                  - DB_NAME=${{ secrets.DB_NAME }}
+                  - DB_USERNAME=${{ secrets.DB_USERNAME }}
+                  - DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+                ports:
+                  - "8080:8080"
+                networks:
+                  - evaluation-network
+                restart: unless-stopped
+              backend-despachos:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-backend-despachos:latest
+                container_name: evaluation-devops-backend-despachos
+                environment:
+                  - SPRING_PROFILES_ACTIVE=prod
+                  - DB_ENDPOINT=${{ secrets.DB_ENDPOINT }}
+                  - DB_PORT=${{ secrets.DB_PORT }}
+                  - DB_NAME=${{ secrets.DB_NAME }}
+                  - DB_USERNAME=${{ secrets.DB_USERNAME }}
+                  - DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+                ports:
+                  - "8081:8081"
+                networks:
+                  - evaluation-network
+                restart: unless-stopped
+            networks:
+              evaluation-network:
+                driver: bridge
+            COMPOSEEOF
             sudo docker-compose up -d
 
   health-check:
