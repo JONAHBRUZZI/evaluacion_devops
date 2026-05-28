@@ -1,5 +1,5 @@
 # ============================================
-# MAIN TERRAFORM - Learner Lab compatible
+# TERRAFORM PRINCIPAL - Compatible Learner Lab
 # ============================================
 module "security" {
   source = "./modules/security"

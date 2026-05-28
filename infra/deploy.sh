@@ -1,89 +1,79 @@
 #!/bin/bash
 # ============================================
-# DEPLOY SCRIPT
+# SCRIPT DE DESPLIEGUE
 # ============================================
-# Deploys infrastructure and application to AWS
 
 set -e
 
 echo "============================================"
-echo "  EVALUATION DEVOPS - DEPLOYMENT"
+echo "  EVALUACIÓN DEVOPS - DESPLIEGUE"
 echo "============================================"
 
-# Get the directory where the script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-# Function to print status
-print_status() {
+imprimir_estado() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
 
-print_warning() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
+imprimir_aviso() {
+    echo -e "${YELLOW}[AVISO]${NC} $1"
 }
 
-print_error() {
+imprimir_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-# Check if terraform is installed
 if ! command -v terraform &> /dev/null; then
-    print_error "Terraform is not installed"
+    imprimir_error "Terraform no está instalado"
     exit 1
 fi
 
-print_status "Initializing Terraform..."
+imprimir_estado "Inicializando Terraform..."
 terraform init
 
-print_status "Formatting Terraform files..."
+imprimir_estado "Formateando archivos Terraform..."
 terraform fmt
 
-print_status "Validating Terraform configuration..."
+imprimir_estado "Validando configuración de Terraform..."
 terraform validate || {
-    print_error "Terraform validation failed"
+    imprimir_error "Validación de Terraform falló"
     exit 1
 }
 
-print_status "Creating execution plan..."
+imprimir_estado "Creando plan de ejecución..."
 terraform plan -out=tfplan
 
-print_warning "=========================================="
-print_warning "  About to apply infrastructure changes"
-print_warning "  This will create AWS resources"
-print_warning "=========================================="
+imprimir_aviso "=========================================="
+imprimir_aviso "  Se aplicarán cambios en infraestructura"
+imprimir_aviso "  Se crearán recursos de AWS"
+imprimir_aviso "=========================================="
 
-read -p "Continue? (y/n): " -n 1 -r
+read -p "¿Continuar? (s/n): " -n 1 -r
 echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    print_status "Deployment cancelled"
+if [[ ! $REPLY =~ ^[Ss]$ ]]; then
+    imprimir_estado "Despliegue cancelado"
     exit 0
 fi
 
-print_status "Applying Terraform configuration..."
+imprimir_estado "Aplicando configuración de Terraform..."
 terraform apply tfplan
 
-print_status "=========================================="
-print_status "  Infrastructure deployed successfully"
-print_status "=========================================="
+imprimir_estado "=========================================="
+imprimir_estado "  Infraestructura desplegada exitosamente"
+imprimir_estado "=========================================="
 
-# Show outputs
 echo ""
-print_status "Deployment Outputs:"
+imprimir_estado "Resultados del despliegue:"
 terraform output
 
 echo ""
-print_status "Next steps:"
-echo "  1. Wait 2-3 minutes for EC2 user-data to complete"
-echo "  2. SSH to instance and run: ssh -i ~/.ssh/evaluation-devops-key.pem ubuntu@<public-ip>"
-echo "  3. Pull Docker images: cd /app && docker compose pull"
-echo "  4. Start services: cd /app && ./start.sh"
-
-echo ""
-print_status "Or wait for GitHub Actions to deploy automatically"
+imprimir_estado "Próximos pasos:"
+echo "  1. Esperar 2-3 minutos para que el user-data de EC2 termine"
+echo "  2. Conectar por SSH: ssh -i ~/.ssh/labsuser.pem ec2-user@<ip-publica>"
+echo "  3. Las imágenes Docker se despliegan automáticamente desde GitHub Actions"

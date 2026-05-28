@@ -1,7 +1,7 @@
-# SSH Keys
+# Claves SSH
 EC2_SSH_KEY=~/.ssh/evaluation-devops-key.pem
 
-# AWS Region
+# Región AWS
 AWS_REGION=us-east-1
 
 # Docker Hub

@@ -1,53 +1,53 @@
 variable "aws_region" {
-  description = "AWS Region"
+  description = "Región de AWS"
   type        = string
   default     = "us-east-1"
 }
 
 variable "environment" {
-  description = "Environment name"
+  description = "Nombre del ambiente"
   type        = string
   default     = "dev"
 }
 
 variable "project_name" {
-  description = "Project name"
+  description = "Nombre del proyecto"
   type        = string
   default     = "evaluation-devops"
 }
 
 variable "frontend_port" {
-  description = "Frontend port"
+  description = "Puerto del frontend"
   type        = number
   default     = 80
 }
 
 variable "backend_ventas_port" {
-  description = "Backend ventas port"
+  description = "Puerto del backend ventas"
   type        = number
   default     = 8080
 }
 
 variable "backend_despachos_port" {
-  description = "Backend despachos port"
+  description = "Puerto del backend despachos"
   type        = number
   default     = 8081
 }
 
 variable "instance_type" {
-  description = "EC2 instance type"
+  description = "Tipo de instancia EC2"
   type        = string
   default     = "t2.medium"
 }
 
 variable "ami_id" {
-  description = "AMI ID (Amazon Linux 2023 us-east-1)"
+  description = "ID de AMI (Amazon Linux 2023 us-east-1)"
   type        = string
   default     = "ami-0df8c184d5f6ae949"
 }
 
 variable "dockerhub_username" {
-  description = "Docker Hub username"
+  description = "Usuario de Docker Hub"
   type        = string
   default     = ""
 }

@@ -1,9 +1,9 @@
 # ============================================
-# SECURITY MODULE
+# MÓDULO DE SEGURIDAD
 # ============================================
 resource "aws_security_group" "main" {
   name_prefix = "${var.project_name}-sg-"
-  description = "Security group for evaluation-devops stack"
+  description = "Grupo de seguridad para el stack evaluation-devops"
 
   ingress {
     description = "HTTP (Frontend)"
@@ -22,7 +22,7 @@ resource "aws_security_group" "main" {
   }
 
   ingress {
-    description = "Backend Ventas (Internal)"
+    description = "Backend Ventas"
     from_port   = var.backend_ventas_port
     to_port     = var.backend_ventas_port
     protocol    = "tcp"
@@ -30,7 +30,7 @@ resource "aws_security_group" "main" {
   }
 
   ingress {
-    description = "Backend Despachos (Internal)"
+    description = "Backend Despachos"
     from_port   = var.backend_despachos_port
     to_port     = var.backend_despachos_port
     protocol    = "tcp"
@@ -38,7 +38,7 @@ resource "aws_security_group" "main" {
   }
 
   egress {
-    description = "All outbound traffic"
+    description = "Todo el tráfico saliente"
     from_port   = 0
     to_port     = 0
     protocol    = "-1"

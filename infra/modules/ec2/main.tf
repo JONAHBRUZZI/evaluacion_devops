@@ -1,5 +1,5 @@
 # ============================================
-# EC2 MODULE - Learner Lab compatible
+# MÓDULO EC2 - Compatible Learner Lab
 # ============================================
 data "aws_vpc" "default" {
   default = true
