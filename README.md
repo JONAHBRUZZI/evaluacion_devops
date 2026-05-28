@@ -381,3 +381,29 @@ git push origin deploy       # Trigger pipeline
 - [Arquitectura](docs/architecture.md) - Diagrama detallado de arquitectura
 - [DevOps Explained](docs/devops-explanation.md) - Justificación técnica de decisiones
 - [Evidence Guide](docs/evidence.md) - Guía para defensa académica
+- [Lecciones Aprendidas](docs/lessons-learned.md) - Errores, tips, persistencia y backups
+
+## Tips Rápidos
+
+### Cambiar frontend sin tocar backends
+```bash
+# Editar archivo en front_despacho/ y pushear
+git add front_despacho/
+git commit -m "Nuevo cambio visual"
+git push origin deploy
+# Pipeline: build → push → pull → redeploy solo frontend
+```
+
+### Backup de base de datos
+```bash
+sudo docker exec evaluation-devops-mysql mysqldump -uroot -p \
+  --all-databases > backup_$(date +%Y%m%d).sql
+```
+
+### Verificar salud del stack
+```bash
+curl http://localhost:80/                  # Frontend
+curl http://localhost:8080/actuator/health # Backend Ventas
+curl http://localhost:8081/actuator/health # Backend Despachos
+sudo docker ps                             # Todos los contenedores
+```
