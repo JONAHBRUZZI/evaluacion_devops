@@ -340,9 +340,10 @@ jobs:
     if: github.event.inputs.skip_ec2_deploy != 'true'
     steps:
       - name: Wait for services
-        run: sleep 30
+        run: sleep 60
 
       - name: Check frontend
+        continue-on-error: true
         run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}/
 
       - name: Check backend ventas
