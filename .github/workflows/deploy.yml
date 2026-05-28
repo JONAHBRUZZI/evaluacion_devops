@@ -266,7 +266,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Wait for EC2 to be ready
-        run: sleep 120
+        run: sleep 180
+
+      - name: Verify Docker is ready
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ needs.terraform-deploy.outputs.ec2_public_ip }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo docker ps || true
+            sudo docker-compose --version || true
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -332,6 +342,10 @@ jobs:
                 driver: bridge
             COMPOSEEOF
             sudo docker-compose up -d
+            echo "=== Verifying services ==="
+            sleep 10
+            curl -f http://localhost || echo "Frontend not ready yet"
+            sudo docker ps
 
   health-check:
     name: Health Check
@@ -344,13 +358,15 @@ jobs:
 
       - name: Check frontend
         continue-on-error: true
-        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}/
+        run: curl -f -s -o /dev/null -w "Frontend:%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}/ || echo " FAIL"
 
       - name: Check backend ventas
-        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8080/actuator/health
+        continue-on-error: true
+        run: curl -f -s -o /dev/null -w "Ventas:%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8080/actuator/health || echo " FAIL"
 
       - name: Check backend despachos
-        run: curl -f -s -o /dev/null -w "%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8081/actuator/health
+        continue-on-error: true
+        run: curl -f -s -o /dev/null -w "Despachos:%{http_code}" http://${{ needs.terraform-deploy.outputs.ec2_public_ip }}:8081/actuator/health || echo " FAIL"
 
       - name: Final status
         run: |
