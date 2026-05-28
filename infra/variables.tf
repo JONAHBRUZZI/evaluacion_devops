@@ -65,10 +65,10 @@ variable "dockerhub_username" {
   default     = ""
 }
 
-variable "ec2_ssh_key_path" {
-  description = "Path to SSH key for EC2 access"
+variable "dockerhub_username" {
+  description = "Docker Hub username"
   type        = string
-  default     = "~/.ssh/evaluation-devops-key.pem"
+  default     = ""
 }
 
 variable "ami_id" {

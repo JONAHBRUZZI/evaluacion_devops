@@ -30,6 +30,5 @@ module "ec2" {
   security_group_id   = module.security.security_group_id
   instance_type       = var.instance_type
   ami_id             = var.ami_id
-  ssh_key_path       = var.ec2_ssh_key_path
   dockerhub_username = var.dockerhub_username
 }

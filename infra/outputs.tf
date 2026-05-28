@@ -55,10 +55,16 @@ output "backend_despachos_url" {
 
 output "ssh_command" {
   description = "SSH command to connect to the instance"
-  value       = "ssh -i ${var.ec2_ssh_key_path} ubuntu@${module.ec2.ec2_public_ip}"
+  value       = "ssh -i <private_key> ubuntu@${module.ec2.ec2_public_ip}"
+}
+
+output "ssh_private_key" {
+  description = "SSH private key (save to file)"
+  value       = module.ec2.ssh_private_key
+  sensitive   = true
 }
 
 output "ssh_key_warning" {
   description = "Warning about SSH key"
-  value       = "IMPORTANT: Ensure the SSH key exists at ${var.ec2_ssh_key_path} before connecting"
+  value       = "Save the ssh_private_key output to a file: terraform output -raw ssh_private_key > evaluation-devops-key.pem && chmod 400 evaluation-devops-key.pem"
 }

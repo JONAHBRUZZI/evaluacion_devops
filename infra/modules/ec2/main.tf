@@ -16,9 +16,14 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"]
 }
 
+resource "tls_private_key" "ssh_key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 resource "aws_key_pair" "ssh_key" {
   key_name   = "${var.project_name}-key"
-  public_key = fileexists(var.ssh_key_path) ? file(var.ssh_key_path) : ""
+  public_key = tls_private_key.ssh_key.public_key_openssh
 }
 
 resource "aws_instance" "main" {
@@ -61,4 +66,9 @@ output "ec2_private_ip" {
 
 output "ec2_ami" {
   value = aws_instance.main.ami
+}
+
+output "ssh_private_key" {
+  value     = tls_private_key.ssh_key.private_key_pem
+  sensitive = true
 }
