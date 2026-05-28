@@ -1,53 +1,30 @@
 # ============================================
-# EC2 MODULE
+# EC2 MODULE - Learner Lab compatible
 # ============================================
-# Creates EC2 instance with Docker and Docker Compose
-
-data "aws_ami" "ubuntu" {
-  count = var.ami_id == "" ? 1 : 0
-
-  most_recent = true
+data "aws_subnet" "default" {
   filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*"]
+    name   = "default-for-az"
+    values = ["true"]
   }
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-  owners = ["099720109477"]
 }
 
-resource "tls_private_key" "ssh_key" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
-}
-
-resource "random_string" "suffix" {
-  length  = 6
-  special = false
-  upper   = false
-}
-
-resource "aws_key_pair" "ssh_key" {
-  key_name   = "${var.project_name}-key-${random_string.suffix.result}"
-  public_key = tls_private_key.ssh_key.public_key_openssh
+data "aws_vpc" "default" {
+  default = true
 }
 
 resource "aws_instance" "main" {
-  ami           = var.ami_id != "" ? var.ami_id : data.aws_ami.ubuntu[0].id
+  ami           = var.ami_id
   instance_type = var.instance_type
-  subnet_id     = var.subnet_id
+  subnet_id     = data.aws_subnet.default.id
 
   vpc_security_group_ids = [var.security_group_id]
-  key_name               = aws_key_pair.ssh_key.key_name
+  key_name               = "vockey"
 
   associate_public_ip_address = true
 
   root_block_device {
-    volume_size = 40
-    volume_type = "gp3"
-    encrypted   = true
+    volume_size = 30
+    volume_type = "gp2"
   }
 
   user_data = templatefile("${path.module}/user-data.sh", {
@@ -70,13 +47,4 @@ output "ec2_public_ip" {
 
 output "ec2_private_ip" {
   value = aws_instance.main.private_ip
-}
-
-output "ec2_ami" {
-  value = aws_instance.main.ami
-}
-
-output "ssh_private_key" {
-  value     = tls_private_key.ssh_key.private_key_pem
-  sensitive = true
 }

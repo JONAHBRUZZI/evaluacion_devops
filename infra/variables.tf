@@ -1,35 +1,23 @@
 variable "aws_region" {
-  description = "AWS Region for all resources"
+  description = "AWS Region"
   type        = string
   default     = "us-east-1"
 }
 
 variable "environment" {
-  description = "Environment name (dev, staging, prod)"
+  description = "Environment name"
   type        = string
   default     = "dev"
 }
 
 variable "project_name" {
-  description = "Project name for resource naming"
+  description = "Project name"
   type        = string
   default     = "evaluation-devops"
 }
 
-variable "vpc_cidr" {
-  description = "CIDR block for VPC"
-  type        = string
-  default     = "10.0.0.0/16"
-}
-
-variable "availability_zone" {
-  description = "Availability zone for subnets"
-  type        = string
-  default     = "us-east-1a"
-}
-
 variable "frontend_port" {
-  description = "Frontend exposed port"
+  description = "Frontend port"
   type        = number
   default     = 80
 }
@@ -52,21 +40,14 @@ variable "instance_type" {
   default     = "t3.medium"
 }
 
-variable "db_password" {
-  description = "Database password"
+variable "ami_id" {
+  description = "AMI ID (Amazon Linux 2023 us-east-1)"
   type        = string
-  sensitive   = true
-  default     = ""
+  default     = "ami-0df8c184d5f6ae949"
 }
 
 variable "dockerhub_username" {
   description = "Docker Hub username"
   type        = string
   default     = ""
-}
-
-variable "ami_id" {
-  description = "AMI ID for Ubuntu Server LTS (us-east-1 default)"
-  type        = string
-  default     = "ami-04b4f1a9cf54c11d0"
 }
