@@ -1,21 +1,17 @@
 # ============================================
 # EC2 MODULE - Learner Lab compatible
 # ============================================
-data "aws_subnet" "default" {
+data "aws_subnets" "default" {
   filter {
-    name   = "default-for-az"
-    values = ["true"]
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
   }
-}
-
-data "aws_vpc" "default" {
-  default = true
 }
 
 resource "aws_instance" "main" {
   ami           = var.ami_id
   instance_type = var.instance_type
-  subnet_id     = data.aws_subnet.default.id
+  subnet_id     = data.aws_subnets.default.ids[0]
 
   vpc_security_group_ids = [var.security_group_id]
   key_name               = "vockey"
