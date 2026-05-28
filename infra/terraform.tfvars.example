@@ -1,0 +1,9 @@
+# SSH Keys
+EC2_SSH_KEY=~/.ssh/evaluation-devops-key.pem
+
+# AWS Region
+AWS_REGION=us-east-1
+
+# Docker Hub
+DOCKERHUB_USERNAME=jonahbruzzi
+DOCKERHUB_TOKEN=dckr_pat_xxxxxxxxxxxxx
