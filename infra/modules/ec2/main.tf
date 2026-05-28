@@ -21,8 +21,14 @@ resource "tls_private_key" "ssh_key" {
   rsa_bits  = 4096
 }
 
+resource "random_string" "suffix" {
+  length  = 6
+  special = false
+  upper   = false
+}
+
 resource "aws_key_pair" "ssh_key" {
-  key_name   = "${var.project_name}-key"
+  key_name   = "${var.project_name}-key-${random_string.suffix.result}"
   public_key = tls_private_key.ssh_key.public_key_openssh
 }
 
