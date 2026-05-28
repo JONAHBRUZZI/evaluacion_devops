@@ -254,6 +254,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Download previous Terraform state
+        uses: dawidd6/action-download-artifact@v7
+        continue-on-error: true
+        with:
+          workflow: deploy.yml
+          name: terraform-state
+          path: infra
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -292,6 +300,13 @@ jobs:
         env:
           TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
           TF_VAR_dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+
+      - name: Upload Terraform state
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-state
+          path: infra/terraform.tfstate
+          retention-days: 7
 
       - name: Get EC2 Public IP
         id: get-ip
@@ -345,6 +360,7 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-frontend:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-backend-ventas:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/evaluation-devops-backend-despachos:latest
+            docker pull mysql:8.0
             cd /app
             sudo tee .env > /dev/null << 'EOF'
             DB_ENDPOINT=mysql
