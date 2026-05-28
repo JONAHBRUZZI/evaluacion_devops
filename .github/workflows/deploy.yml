@@ -288,6 +288,7 @@ jobs:
             DB_PASSWORD=${{ secrets.DB_PASSWORD }}
             EOF
             sudo docker-compose down
+            sudo sed -i '/condition: service_healthy/d' /app/docker-compose.yml
             sudo docker-compose up -d
 
   health-check:
